@@ -127,7 +127,7 @@ create table item_instances (
 );
 
 -- =============================================
---                 DUMMY DATA INSERTION
+--                 DATA INSERTION
 -- =============================================
 
 -- users (passwords are just placeholders)
