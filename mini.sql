@@ -2,7 +2,6 @@ drop database if exists gamestoredb;
 create database gamestoredb;
 use gamestoredb;
 
--- Tables
 create table users (
     user_id int auto_increment primary key,
     user_name varchar(100) not null,
@@ -27,7 +26,7 @@ create table friendships (
     primary key (user_id1, user_id2),
     foreign key (user_id1) references users(user_id) on delete cascade,
     foreign key (user_id2) references users(user_id) on delete cascade,
-    check (user_id1 < user_id2 ) -- to avoid duplicate friendships in reverse order
+    check (user_id1 < user_id2 )
 );
 
 create table publishers (
@@ -44,7 +43,9 @@ create table developers (
 
 create table tags (
     tag_id int auto_increment primary key,
-    tag_name varchar(50) not null unique
+    tag_name varchar(50) not null unique,
+    parent_tag_id int,
+    foreign key (parent_tag_id) references tags(tag_id) on delete set null
 );
 
 create table games (
@@ -126,10 +127,6 @@ create table item_instances (
     foreign key (user_id) references users(user_id) on delete set null
 );
 
--- =============================================
---                 DATA INSERTION
--- =============================================
-
 insert into users (user_name, email, password, dob) values
 ('alice', 'alice@email.com', 'hashed_pw_1', '1995-04-12'),
 ('bob', 'bob@email.com', 'hashed_pw_2', '1998-07-22'),
@@ -150,8 +147,35 @@ insert into developers (studio, country) values
 ('codewizards', 'uk'),
 ('lone wolf dev', 'canada');
 
-insert into tags (tag_name) values
-('rpg'), ('action'), ('sci-fi'), ('puzzle'), ('open world'), ('strategy');
+INSERT INTO tags (tag_name, parent_tag_id) VALUES
+('RPG', NULL),
+('Action', NULL),
+('Sci-Fi', NULL),
+('Puzzle', NULL),
+('Open World', NULL),
+('Strategy', NULL),
+('Simulation', NULL),
+('Action RPG', 1),
+('JRPG', 1),
+('Tactical RPG', 1),
+('MMORPG', 1),
+('Platformer', 2),
+('Shooter', 2),
+('Fighting', 2),
+('Hack and Slash', 2),
+('Real-Time Strategy (RTS)', 6),
+('Turn-Based Strategy (TBS)', 6),
+('Grand Strategy', 6),
+('Tower Defense', 6),
+('Vehicle Simulation', 7),
+('Life Simulation', 7),
+('Construction & Management', 7),
+('First-Person Shooter (FPS)', 13),
+('Third-Person Shooter (TPS)', 13),
+('MOBA', 17),
+('4X', 18),
+('Flight Sim', 21),
+('Racing Sim', 21);
 
 insert into games (game_name, description, release_date, price, age_rating, publisher_id, dev_id) values
 ('cybernetic dawn', 'a thrilling sci-fi action rpg.', '2023-05-20', 59.99, '18+', 1, 1),
@@ -165,10 +189,10 @@ insert into friendships (user_id1, user_id2, added_date) values
 (2, 4, '2024-05-20 18:00:00');
 
 insert into game_tags (game_id, tag_id) values
-(1, 2), (1, 3), (1, 1), -- cybernetic dawn is action, sci-fi, rpg
-(2, 1), (2, 5),          -- kingdoms of ether is rpg, open world
-(3, 4),                  -- puzzle sphere is puzzle
-(4, 3), (4, 6);          -- galactic marauder is sci-fi, strategy
+(1, 2), (1, 3), (1, 1),
+(2, 1), (2, 5),
+(3, 4),
+(4, 3), (4, 6);
 
 insert into user_library (user_id, game_id, purchase_date, hours_played) values
 (1, 1, '2023-06-01 14:00:00', 80.5),
@@ -205,7 +229,7 @@ insert into items (game_id, item_name, description) values
 (2, 'health potion', 'restores a moderate amount of health.');
 
 insert into item_instances (item_id, user_id, date_acquired) values
-(1, 1, '2023-06-05 12:00:00'), -- alice has a plasma rifle
-(3, 2, '2023-02-11 11:30:00'), -- bob has an elven sword
-(4, 2, '2023-02-11 11:32:00'), -- bob also has a health potion
-(2, 3, '2023-07-01 19:00:00'); -- charlie has a stealth cloak
+(1, 1, '2023-06-05 12:00:00'),
+(3, 2, '2023-02-11 11:30:00'),
+(4, 2, '2023-02-11 11:32:00'),
+(2, 3, '2023-07-01 19:00:00');
