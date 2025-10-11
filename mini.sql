@@ -93,15 +93,21 @@ foreign key (game_id) references games (game_id) on delete cascade,
 check (rating > = 1 and rating < = 5)
 ) ;
 
-create table achievements (
-unlocked_achievement_id int auto_increment primary key,
-user_id int not null,
+create table game_achievements (
+achievement_id int auto_increment primary key,
 game_id int not null,
 achievement_name varchar (255) not null,
 description text,
+foreign key (game_id) references games (game_id) on delete cascade
+) ;
+
+create table unlocked_achievements (
+unlocked_achievement_id int auto_increment primary key,
+user_id int not null,
+achievement_id int not null,
 unlock_timestamp datetime not null,
 foreign key (user_id) references users (user_id) on delete cascade,
-foreign key (game_id) references games (game_id) on delete cascade
+foreign key (achievement_id) references game_achievements (achievement_id) on delete cascade
 ) ;
 
 create table items (
@@ -127,6 +133,46 @@ insert into users (user_name, email, password, dob) values
 ('charlie', 'charlie@email.com', 'password3', '1992-11-30'),
 ('diana', 'diana@email.com', 'password4', '2001-01-15') ;
 
+-- Add more users
+INSERT INTO users (user_name, email, password, dob) VALUES
+('eva', 'eva@email.com', 'password5', '1999-02-20'),
+('frank', 'frank@email.com', 'password6', '1994-09-05'),
+('grace', 'grace@email.com', 'password7', '2003-06-10'),
+('henry', 'henry@email.com', 'password8', '1991-12-25') ;
+
+-- Add more games to the user library
+INSERT INTO user_library (user_id, game_id, purchase_date, hours_played) VALUES
+(5, 10, '2023-01-01 10:00:00', 10.5),
+(5, 15, '2023-02-10 12:30:00', 25.0),
+(6, 20, '2023-03-15 18:00:00', 5.0),
+(6, 25, '2023-04-20 20:00:00', 15.2),
+(7, 5, '2023-05-25 14:00:00', 30.0),
+(7, 12, '2023-06-30 16:30:00', 40.5),
+(8, 8, '2023-07-01 11:00:00', 50.0),
+(8, 18, '2023-08-10 13:00:00', 22.0) ;
+
+-- Add more reviews
+INSERT INTO reviews (user_id, game_id, rating, review_text, post_date) VALUES
+(5,
+10,
+4,
+'AstroShift is a mind-bending puzzle-platformer that will keep you hooked for hours.',
+'2023-01-15 14:00:00'),
+(6,
+20,
+5,
+'Cyber Heist is a thrilling stealth game with a focus on hacking. Highly recommended!',
+'2023-03-20 19:30:00'),
+(7,
+5,
+3,
+'Project Chimera is a decent tactical RPG, but it can be a bit repetitive at times.',
+'2023-06-01 16:45:00'),
+(8,
+8,
+5,
+'Phantom Signal is a masterpiece of stealth-action. The story is gripping and the gameplay is flawless.',
+'2023-07-10 22:00:00') ;
 insert into user_address (user_id, address_lines, pincode) values
 (1, '123 Pixel Street, Tech City', '560001'),
 (3, '456 Quest Road, Fantasy Ville', '560025') ;
@@ -417,504 +463,7 @@ dev_id) values
 24.99,
 '12+',
 9,
-2),
-('Dave the Diver',
-'A casual, single-player adventure RPG featuring deep-sea exploration and fishing during the day and sushi restaurant management at night.',
-'2023-06-28',
-19.99,
-'7+',
-10,
-3),
-('Lethal Company',
-'A co-op horror game about scavenging abandoned moons.',
-'2023-10-23',
-9.99,
-'18+',
-1,
-4),
-('Enshrouded',
-'A survival, crafting, and action RPG combat game.',
-'2024-01-24',
-29.99,
-'16+',
-2,
-5),
-('Palworld',
-'A monster-taming, survival, and crafting game.',
-'2024-01-19',
-29.99,
-'12+',
-3,
-6),
-('Helldivers 2',
-'A third-person shooter from Arrowhead Game Studios.',
-'2024-02-08',
-39.99,
-'18+',
-4,
-7),
-('Baldur''s Gate 3',
-'A story-rich, party-based RPG set in the universe of Dungeons & Dragons.',
-'2023-08-03',
-59.99,
-'18+',
-5,
-8),
-('Elden Ring',
-'An action RPG from FromSoftware.',
-'2022-02-25',
-59.99,
-'18+',
-6,
-9),
-('Cyberpunk 2077',
-'An open-world, action-adventure story from CD PROJEKT RED.',
-'2020-12-10',
-59.99,
-'18+',
-7,
-10),
-('The Witcher 3: Wild Hunt',
-'A story-driven, open-world RPG from CD PROJEKT RED.',
-'2015-05-19',
-39.99,
-'18+',
-8,
-1),
-('Red Dead Redemption 2',
-'An epic tale of life in America at the dawn of the modern age.',
-'2018-10-26',
-59.99,
-'18+',
-9,
-2),
-('Grand Theft Auto V',
-'An open-world action-adventure game from Rockstar Games.',
-'2013-09-17',
-29.99,
-'18+',
-10,
-3),
-('Minecraft',
-'A game about placing blocks and going on adventures.',
-'2011-11-18',
-26.95,
-'7+',
-1,
-4),
-('Terraria',
-'A 2D sandbox game with gameplay that revolves around exploration, building, crafting, combat, and mining.',
-'2011-05-16',
-9.99,
-'12+',
-2,
-5),
-('Stardew Valley',
-'A farming simulation game.',
-'2016-02-26',
-14.99,
-'7+',
-3,
-6),
-('Hollow Knight',
-'A 2D action-adventure game with an emphasis on exploration and combat.',
-'2017-02-24',
-14.99,
-'7+',
-4,
-7),
-('Celeste',
-'A single-player platformer about climbing a mountain.',
-'2018-01-25',
-19.99,
-'7+',
-5,
-8),
-('Undertale',
-'A role-playing game where you don''t have to destroy anyone.',
-'2015-09-15',
-9.99,
-'12+',
-6,
-9),
-('Factorio',
-'A game in which you build and maintain factories.',
-'2020-08-14',
-30.00,
-'12+',
-7,
-10),
-('RimWorld',
-'A sci-fi colony sim driven by an intelligent AI storyteller.',
-'2018-10-17',
-34.99,
-'16+',
-8,
-1),
-('Slay the Spire',
-'A single-player deckbuilder that fuses card games and roguelikes together.',
-'2019-01-23',
-24.99,
-'12+',
-9,
-2),
-('Dead Cells',
-'A rogue-lite, metroidvania-inspired, action-platformer.',
-'2018-08-07',
-24.99,
-'16+',
-10,
-3),
-('The Binding of Isaac: Rebirth',
-'A randomly generated action RPG shooter with heavy rogue-like elements.',
-'2014-11-04',
-14.99,
-'16+',
-1,
-4),
-('Enter the Gungeon',
-'A bullet hell dungeon crawler following a band of misfits seeking to shoot, loot, dodge roll and table-flip their way to personal absolution.',
-'2016-04-05',
-14.99,
-'12+',
-2,
-5),
-('Darkest Dungeon',
-'A challenging gothic roguelike turn-based RPG about the psychological stresses of adventuring.',
-'2016-01-19',
-24.99,
-'16+',
-3,
-6),
-('FTL: Faster Than Light',
-'A spaceship simulation roguelike-like.',
-'2012-09-14',
-9.99,
-'7+',
-4,
-7),
-('Into the Breach',
-'A turn-based strategy game where you control giant mechs to defend against an alien invasion.',
-'2018-02-27',
-14.99,
-'7+',
-5,
-8),
-('Papers, Please',
-'A dystopian document thriller.',
-'2013-08-08',
-9.99,
-'16+',
-6,
-9),
-('Return of the Obra Dinn',
-'An insurance adventure with minimal color.',
-'2018-10-18',
-19.99,
-'16+',
-7,
-10),
-('Outer Wilds',
-'An open world mystery about a solar system trapped in an endless time loop.',
-'2019-05-28',
-24.99,
-'7+',
-8,
-1),
-('Subnautica',
-'An underwater adventure game set on an alien ocean planet.',
-'2018-01-23',
-29.99,
-'12+',
-9,
-2),
-('The Forest',
-'A first-person survival horror game.',
-'2018-04-30',
-19.99,
-'18+',
-10,
-3),
-('Valheim',
-'A brutal exploration and survival game for 1-10 players, set in a procedurally-generated purgatory inspired by viking culture.',
-'2021-02-02',
-19.99,
-'16+',
-1,
-4),
-('Phasmophobia',
-'A 4 player online co-op psychological horror where you and your team members of paranormal investigators will enter haunted locations filled with paranormal activity and gather as much evidence of the paranormal as you can.',
-'2020-09-18',
-13.99,
-'16+',
-2,
-5),
-('Among Us',
-'An online and local party game of teamwork and betrayal for 4-15 players.',
-'2018-11-16',
-4.99,
-'7+',
-3,
-6),
-('Fall Guys',
-'A massively multiplayer party game with up to 60 players online in a free-for-all struggle through round after round of escalating chaos until one victor remains!',
-'2020-08-04',
-0.00,
-'3+',
-4,
-7),
-('Rocket League',
-'A high-powered hybrid of arcade-style soccer and vehicular mayhem.',
-'2015-07-07',
-0.00,
-'3+',
-5,
-8),
-('Apex Legends',
-'A free-to-play battle royale-hero shooter game.',
-'2019-02-04',
-0.00,
-'16+',
-6,
-9),
-('Fortnite',
-'A free-to-play battle royale game with numerous game modes for every type of player.',
-'2017-07-25',
-0.00,
-'12+',
-7,
-10),
-('Overwatch 2',
-'A team-based action game set in an optimistic future.',
-'2022-10-04',
-0.00,
-'12+',
-8,
-1),
-('Valorant',
-'A 5v5 character-based tactical shooter.',
-'2020-06-02',
-0.00,
-'16+',
-9,
-2),
-('League of Legends',
-'A team-based game with over 140 champions to make epic plays with.',
-'2009-10-27',
-0.00,
-'12+',
-10,
-3),
-('Dota 2',
-'A multiplayer online battle arena (MOBA) video game developed and published by Valve.',
-'2013-07-09',
-0.00,
-'16+',
-1,
-4),
-('Counter-Strike: Global Offensive',
-'A multiplayer first-person shooter.',
-'2012-08-21',
-0.00,
-'18+',
-2,
-5),
-('Team Fortress 2',
-'A team-based first-person shooter multiplayer video game developed and published by Valve.',
-'2007-10-10',
-0.00,
-'16+',
-3,
-6),
-('Warframe',
-'An online action game that includes elements of shooters, RPGs and stealth games.',
-'2013-03-25',
-0.00,
-'16+',
-4,
-7),
-('Path of Exile',
-'An online action RPG set in a dark fantasy world.',
-'2013-10-23',
-0.00,
-'16+',
-5,
-8),
-('Destiny 2',
-'An action MMO with a single evolving world that you and your friends can join anytime, anywhere, absolutely free.',
-'2017-09-06',
-0.00,
-'16+',
-6,
-9),
-('Genshin Impact',
-'An open-world action RPG.',
-'2020-09-28',
-0.00,
-'12+',
-7,
-10),
-('Honkai: Star Rail',
-'A new HoYoverse space fantasy RPG.',
-'2023-04-26',
-0.00,
-'12+',
-8,
-1),
-('Final Fantasy XIV Online',
-'A massively multiplayer online role-playing game (MMORPG) with a persistent world.',
-'2013-08-27',
-19.99,
-'16+',
-9,
-2),
-('The Elder Scrolls Online',
-'A massively multiplayer online role-playing game (MMORPG) set in the Elder Scrolls universe.',
-'2014-04-04',
-19.99,
-'18+',
-10,
-3),
-('World of Warcraft',
-'A massively multiplayer online role-playing game (MMORPG).',
-'2004-11-23',
-14.99,
-'12+',
-1,
-4),
-('Guild Wars 2',
-'A massively multiplayer online role-playing game with a non-subscription business model.',
-'2012-08-28',
-0.00,
-'12+',
-2,
-5),
-('Black Desert Online',
-'A sandbox-centered massively multiplayer online role-playing game.',
-'2016-03-03',
-9.99,
-'16+',
-3,
-6),
-('Albion Online',
-'A sandbox MMORPG set in an open medieval fantasy world.',
-'2017-07-17',
-0.00,
-'12+',
-4,
-7),
-('EVE Online',
-'A player-driven, persistent-world massively multiplayer online role-playing game set in a science fiction space setting.',
-'2003-05-06',
-0.00,
-'12+',
-5,
-8),
-('Star Wars: The Old Republic',
-'A massively multiplayer online role-playing game based in the Star Wars universe.',
-'2011-12-20',
-0.00,
-'16+',
-6,
-9),
-('Neverwinter',
-'A free-to-play, action MMORPG based on the acclaimed Dungeons & Dragons fantasy roleplaying game.',
-'2013-06-20',
-0.00,
-'16+',
-7,
-10),
-('Star Trek Online',
-'A massively multiplayer online role-playing game and the first of its kind based on the Star Trek franchise.',
-'2010-02-02',
-0.00,
-'12+',
-8,
-1),
-('DC Universe Online',
-'A free-to-play action combat massive multiplayer online game set in the fictional universe of DC Comics.',
-'2011-01-11',
-0.00,
-'16+',
-9,
-2),
-('Lord of the Rings Online',
-'A massively multiplayer online role-playing game set in Middle-earth during the time of The Lord of the Rings.',
-'2007-04-24',
-0.00,
-'12+',
-10,
-3),
-('Age of Conan: Unchained',
-'A free-to-play, massively multiplayer online role-playing game set in the fantasy world of Hyboria.',
-'2008-05-20',
-0.00,
-'18+',
-1,
-4),
-('EverQuest II',
-'A 3D fantasy massively multiplayer online role-playing game (MMORPG).',
-'2004-11-08',
-0.00,
-'16+',
-2,
-5),
-('Rift',
-'A fantasy free-to-play massively multiplayer online role-playing game.',
-'2011-03-01',
-0.00,
-'16+',
-3,
-6),
-('ArcheAge',
-'A medieval fantasy massively multiplayer online role-playing game.',
-'2014-09-16',
-0.00,
-'18+',
-4,
-7),
-('Blade & Soul',
-'A Korean fantasy martial arts massively multiplayer online role-playing game.',
-'2016-01-19',
-0.00,
-'16+',
-5,
-8),
-('MapleStory',
-'A 2D, side-scrolling massively multiplayer online role-playing game.',
-'2005-05-11',
-0.00,
-'7+',
-6,
-9),
-('RuneScape',
-'A fantasy massively multiplayer online role-playing game.',
-'2001-01-04',
-0.00,
-'12+',
-7,
-10),
-('Old School RuneScape',
-'A massively multiplayer online role-playing game.',
-'2013-02-22',
-0.00,
-'12+',
-8,
-1),
-('Tibia',
-'A massively multiplayer online role-playing game.',
-'1997-01-07',
-0.00,
-'12+',
-9,
-2),
-('Ultima Online',
-'A massively multiplayer online role-playing game.',
-'1997-09-24',
-0.00,
-'12+',
-10,
-3) ;
+2) ;
 
 insert into friendships (user_id1, user_id2, added_date) values
 (1, 2, '2024-03-01 10:00:00'),
@@ -954,32 +503,20 @@ insert into reviews (user_id, game_id, rating, review_text, post_date) values
 'Really clever puzzles, great for a chill evening.',
 '2024-03-01 16:45:00') ;
 
-insert into achievements (user_id,
-game_id,
-achievement_name,
-description,
+insert into game_achievements (game_id, achievement_name, description) values
+(1, 'First Hack', 'Successfully complete the hacking tutorial.'),
+(1, 'Chrome Justice', 'Defeat the first major boss.'),
+(2, 'Slay a Dragon', 'Defeat your first dragon in the wild.'),
+(2, 'Master Enchanter', 'Craft a legendary enchanted item.') ;
+
+insert into unlocked_achievements (user_id,
+achievement_id,
 unlock_timestamp) values
-(1,
-1,
-'First Hack',
-'Successfully complete the hacking tutorial.',
-'2023-06-01 15:30:00'),
-(3,
-1,
-'First Hack',
-'Successfully complete the hacking tutorial.',
-'2023-05-20 01:00:00'),
-(3, 1, 'Chrome Justice', 'Defeat the first major boss.', '2023-06-15 14:00:00'),
-(2,
-2,
-'Slay a Dragon',
-'Defeat your first dragon in the wild.',
-'2023-01-20 18:00:00'),
-(2,
-2,
-'Master Enchanter',
-'Craft a legendary enchanted item.',
-'2023-04-10 21:15:00') ;
+(1, 1, '2023-06-01 15:30:00'),
+(3, 1, '2023-05-20 01:00:00'),
+(3, 2, '2023-06-15 14:00:00'),
+(2, 3, '2023-01-20 18:00:00'),
+(2, 4, '2023-04-10 21:15:00') ;
 
 insert into items (game_id, item_name, description) values
 (1, 'Plasma Rifle', 'Standard issue energy weapon.'),
@@ -1025,3 +562,474 @@ BEGIN
     WHERE t.tag_name = tag_name_param;
 END$$
 DELIMITER ;
+-- Achievements and Items for the first 10 games
+
+-- Cybernetic Dawn (game_id = 1) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(1, 'De-commissioned', 'Defeat the first boss.'),
+(1, 'Cyber ninja', 'Complete the game using only melee weapons.'),
+(1, 'Millionaire', 'Amass 1,000,000 credits.'),
+(1, 'Fully Loaded', 'Fully upgrade a legendary weapon.'),
+(1, 'Explorer', 'Visit every sector in the game.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(1, 'Katana', 'A high-frequency blade.'),
+(1, 'Railgun', 'A powerful long-range weapon.'),
+(1, 'Cyberdeck', 'Allows for hacking of terminals and enemies.'),
+(1, 'Adrenaline Booster', 'Temporarily increases speed and damage.'),
+(1, 'Chameleon Cloak', 'Provides temporary invisibility.') ;
+
+-- Kingdoms of Ether (game_id = 2) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(2, 'Dragon Slayer', 'Defeat the ancient dragon.'),
+(2, 'King of the Castle', 'Fully upgrade your stronghold.'),
+(2, 'Master Alchemist', 'Brew every type of potion.'),
+(2, 'A-Lister', 'Reach maximum reputation with all factions.'),
+(2, 'The Wanderer', 'Discover all hidden locations.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(2, 'Dragonbone Sword', 'A powerful sword crafted from dragon bones.'),
+(2, 'Elixir of Life', 'A potion that fully restores health and mana.'),
+(2, 'Staff of the Archmage', 'A staff that greatly enhances magical power.'),
+(2, 'Shadow-weave Armor', 'Armor that provides stealth bonuses.'),
+(2, 'Amulet of Kings', 'An amulet that increases all stats.') ;
+
+-- Puzzle Sphere (game_id = 3) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(3, 'Novice Puzzler', 'Complete the first 10 levels.'),
+(3, 'Speed Runner', 'Complete a level in under 30 seconds.'),
+(3, 'Perfectionist', 'Get 3 stars on every level.'),
+(3, 'Mind Bender', 'Complete a puzzle without using any hints.'),
+(3, 'Puzzle Master', 'Complete the game.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(3, 'Hint Coin', 'Reveals a hint for a puzzle.'),
+(3, 'Time Freeze', 'Temporarily stops the timer.'),
+(3, 'Extra Life', 'Provides an extra life.'),
+(3, 'Color Bomb', 'Clears all spheres of a certain color.'),
+(3, 'Wild Card', 'Can be matched with any color.') ;
+
+-- Galactic Marauder (game_id = 4) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(4, 'First Blood', 'Win your first battle.'),
+(4, 'Conqueror', 'Conquer an entire galaxy.'),
+(4, 'Economist', 'Amass 1,000,000,000 resources.'),
+(4, 'Technocrat', 'Research all technologies.'),
+(4, 'Legendary Commander', 'Win 100 battles.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(4, 'Dreadnought', 'The most powerful class of starship.'),
+(4, 'Planet Cracker', 'A weapon capable of destroying planets.'),
+(4, 'Cloaking Device', 'Renders a fleet invisible.'),
+(4, 'Hyperspace Drive', 'Allows for faster-than-light travel.'),
+(4, 'Stargate', 'Allows for instantaneous travel between two points.') ;
+
+-- Project Chimera (game_id = 5) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(5, 'Mission Accomplished', 'Complete the first mission.'),
+(5, 'No Casualties', 'Complete a mission without any of your units dying.'),
+(5, 'Iron Man', 'Complete the game on the hardest difficulty.'),
+(5, 'Squad Goals', 'Fully upgrade all your squad members.'),
+(5, 'Master Tactician', 'Win a battle without taking any damage.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(5,
+'Exosuit',
+'A powered suit of armor that enhances strength and durability.'),
+(5, 'Gauss Rifle', 'A powerful rifle that fires projectiles at high velocity.'),
+(5, 'Medkit', 'Heals a unit''s injuries.'),
+(5, 'Stealth Camo', 'Provides temporary invisibility.'),
+(5, 'Combat Drone', 'A drone that can be deployed to assist in battle.') ;
+
+-- Stardust Odyssey (game_id = 6) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(6, 'The Journey Begins', 'Start your adventure.'),
+(6, 'Savior of the Cosmos', 'Defeat the final boss.'),
+(6, 'Ultimate Weapon', 'Obtain the legendary weapon.'),
+(6, 'Best Friends', 'Reach maximum friendship level with all party members.'),
+(6, 'Collector', 'Collect all rare items.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(6, 'Stardust Blade', 'A sword forged from a fallen star.'),
+(6, 'Phoenix Down', 'Revives a fallen party member.'),
+(6, 'Megalixir', 'Fully restores the party''s health and mana.'),
+(6, 'Summon Materia', 'Allows the user to summon powerful beings.'),
+(6, 'Airship', 'A flying ship that can be used to travel the world.') ;
+
+-- City Builders Deluxe (game_id = 7) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(7, 'My First City', 'Build your first city.'),
+(7, 'Metropolis', 'Reach a population of 1,000,000.'),
+(7, 'Green City', 'Have a city with no pollution.'),
+(7, 'Tycoon', 'Have a treasury of 1,000,000,000.'),
+(7, 'Architectural Marvel', 'Build all the landmarks.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(7, 'Skyscraper', 'A very tall building.'),
+(7, 'Nuclear Power Plant', 'A power plant that generates a lot of energy.'),
+(7, 'Space Elevator', 'A tower that connects the ground to outer space.'),
+(7, 'Fusion Power Plant', 'A clean and efficient power source.'),
+(7, 'Arcology', 'A self-contained, futuristic city.') ;
+
+-- Phantom Signal (game_id = 8) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(8, 'Ghost', 'Complete a level without being detected.'),
+(8,
+'Silent Assassin',
+'Eliminate all enemies in a level without being detected.'),
+(8, 'Pacifist', 'Complete a level without killing anyone.'),
+(8, 'Master of Disguise', 'Use every disguise in the game.'),
+(8, 'True Phantom', 'Complete the game without being detected.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(8, 'Silenced Pistol', 'A pistol with a silencer.'),
+(8, 'Tranquilizer Darts', 'Darts that put enemies to sleep.'),
+(8, 'Lockpick', 'Used to open locked doors.'),
+(8, 'Smoke Bomb', 'Creates a cloud of smoke to obscure vision.'),
+(8, 'Night Vision Goggles', 'Allows for vision in the dark.') ;
+
+-- The Last Spell (game_id = 9) - Real
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(9,
+'Critical Efficiency',
+'Inflict a critical hit on 20 enemies in one Hero''s turn.'),
+(9, 'All At Once', 'Have a Hero or building hit 12 enemies in a single blow.'),
+(9, 'Divide and Conquer', 'Have a Hero kill 200 isolated enemies in one run.'),
+(9,
+'Sadist Fantasy',
+'Kill 300 enemies affected by negative alterations in one run.'),
+(9, 'Punch Out', 'Kill an enemy with the Punch skill.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(9, 'Knife', 'A simple one-handed melee weapon.'),
+(9, 'Axe', 'A one-handed melee weapon with good damage.'),
+(9, 'Wand', 'A basic magic weapon.'),
+(9, 'Shortbow', 'A ranged weapon with a decent fire rate.'),
+(9, 'Pistol', 'A one-handed ranged weapon.') ;
+
+-- AstroShift (game_id = 10) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(10, 'First Shift', 'Complete the first level.'),
+(10, 'Quantum Leap', 'Shift through 100 dimensions.'),
+(10, 'Collector', 'Find all the hidden collectibles.'),
+(10, 'Time Traveler', 'Complete a level in record time.'),
+(10, 'Master of Dimensions', 'Complete the game.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(10, 'Dimension Shifter', 'The device used to shift between dimensions.'),
+(10, 'Gravity Boots', 'Allows the player to walk on walls and ceilings.'),
+(10, 'Time Rewinder', 'Rewinds time by a few seconds.'),
+(10, 'Jetpack', 'Allows for temporary flight.'),
+(10, 'Energy Shield', 'Protects the player from damage.') ;
+-- Achievements and Items for games 11-20
+
+-- World at War: 1944 (game_id = 11) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(11, 'D-Day', 'Successfully land your troops in Normandy.'),
+(11, 'Operation Barbarossa', 'Invade the Soviet Union.'),
+(11, 'Fall of Berlin', 'Conquer the German capital.'),
+(11, 'Master Strategist', 'Win the war without losing a single battle.'),
+(11, 'Victorious', 'Win the war.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(11, 'Infantry Division', 'A division of infantry soldiers.'),
+(11, 'Panzer Division', 'A division of German tanks.'),
+(11, 'Fighter Squadron', 'A squadron of fighter planes.'),
+(11, 'Bomber Squadron', 'A squadron of bomber planes.'),
+(11, 'Battleship', 'A powerful naval warship.') ;
+
+-- Neon Riders (game_id = 12) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(12, 'First Race', 'Complete your first race.'),
+(12, 'Champion', 'Win the championship.'),
+(12, 'Fully Upgraded', 'Fully upgrade your vehicle.'),
+(12, 'Untouchable', 'Win a race without taking any damage.'),
+(12, 'Street Legend', 'Become a legend of the streets.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(12, 'Nitro Boost', 'Provides a temporary speed boost.'),
+(12, 'EMP Mine', 'Disables nearby vehicles.'),
+(12, 'Plasma Shield', 'Protects your vehicle from damage.'),
+(12, 'Mag-Lev Wheels', 'Allows your vehicle to hover.'),
+(12, 'AI Co-pilot', 'Assists with driving and combat.') ;
+
+-- Dragon's Breath (game_id = 13) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(13, 'Dragon''s Bane', 'Slay the great dragon.'),
+(13, 'Master Crafter', 'Craft a legendary item.'),
+(13, 'Guild Leader', 'Become the leader of a guild.'),
+(13, 'World Explorer', 'Discover all regions of the world.'),
+(13, 'Legendary Hero', 'Reach the maximum level.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(13, 'Dragon Scale Armor', 'Armor crafted from the scales of a dragon.'),
+(13, 'Phoenix Blade', 'A sword that can be reborn from its ashes.'),
+(13, 'Staff of the Lich King', 'A powerful staff that can raise the dead.'),
+(13, 'Elixir of Immortality', 'A potion that grants eternal life.'),
+(13, 'Flying Mount', 'A creature that can be ridden to fly through the air.') ;
+
+-- Cosmic Drift (game_id = 14) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(14, 'First Kill', 'Destroy your first enemy ship.'),
+(14, 'Ace Pilot', 'Achieve 100 kills.'),
+(14, 'Capital Ship Killer', 'Destroy a capital ship.'),
+(14, 'Fleet Commander', 'Command a fleet of 10 ships.'),
+(14, 'Galactic Hero', 'Save the galaxy from the alien threat.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(14, 'Laser Cannon', 'A basic energy weapon.'),
+(14, 'Proton Torpedo', 'A powerful explosive weapon.'),
+(14, 'Shield Generator', 'Generates a protective energy shield.'),
+(14, 'Afterburner', 'Provides a temporary speed boost.'),
+(14, 'Warp Drive', 'Allows for faster-than-light travel.') ;
+
+-- The Forgotten City (game_id = 15) - Real
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(15, 'Looper', 'Loop through time once.'),
+(15, 'Super Looper', 'Loop through time ten times.'),
+(15, 'The Many Shall Suffer', 'Reach Ending 1 of 4.'),
+(15, 'The One That Got Away', 'Reach Ending 2 of 4.'),
+(15, 'The Canon Ending', 'Reach Ending 4 of 4.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(15, 'Bow', 'A ranged weapon.'),
+(15, 'Flashlight', 'Provides light in dark areas.'),
+(15, 'Pistol', 'A ranged weapon.'),
+(15, 'Zip Line', 'Allows for fast travel between two points.'),
+(15, 'Immaculate Dwarven Boots', 'A pair of well-crafted boots.') ;
+
+-- Shattered Realms (game_id = 16) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(16, 'Realm Walker', 'Travel to all the realms.'),
+(16, 'Demon Slayer', 'Slay 1000 demons.'),
+(16, 'Lord of the Abyss', 'Defeat the final boss.'),
+(16, 'Master of Magic', 'Learn all the spells.'),
+(16, 'The Unbroken', 'Complete the game without dying.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(16, 'Soul Reaver', 'A sword that steals the souls of its victims.'),
+(16, 'Demon Hide Armor', 'Armor made from the hide of a demon.'),
+(16, 'Void Crystal', 'A crystal that can be used to cast powerful magic.'),
+(16, 'Potion of Berserking', 'A potion that sends the user into a rage.'),
+(16, 'Ring of Power', 'A ring that grants the wearer immense power.') ;
+
+-- Dungeon Masters (game_id = 17) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(17, 'Dungeon Crawler', 'Complete 10 dungeons.'),
+(17, 'Boss Slayer', 'Defeat all the bosses.'),
+(17, 'Treasure Hunter', 'Find all the hidden treasures.'),
+(17,
+'Legendary Party',
+'Complete the game with a full party of legendary heroes.'),
+(17, 'Master of the Dungeon', 'Complete the game on the hardest difficulty.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(17, 'Holy Avenger', 'A sword that is holy in nature.'),
+(17, 'Plate of the Dragon', 'Armor that is made from the scales of a dragon.'),
+(17, 'Ring of Regeneration', 'A ring that regenerates the wearer''s health.'),
+(17,
+'Potion of Giant Strength',
+'A potion that grants the user the strength of a giant.'),
+(17, 'Tome of Knowledge', 'A book that grants the reader knowledge.') ;
+
+-- Starship Tycoon (game_id = 18) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(18, 'First Ship', 'Build your first starship.'),
+(18, 'Millionaire', 'Earn your first million credits.'),
+(18, 'Galactic Magnate', 'Become the richest person in the galaxy.'),
+(18, 'Master of Trade', 'Control all the trade routes.'),
+(18, 'CEO of the Galaxy', 'Own the largest corporation in the galaxy.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(18, 'Freighter', 'A large ship used for transporting cargo.'),
+(18, 'Cruise Liner', 'A luxurious ship for transporting passengers.'),
+(18, 'Asteroid Miner', 'A ship used for mining asteroids.'),
+(18, 'Trade Route License', 'A license to operate on a specific trade route.'),
+(18, 'Corporate Headquarters', 'The headquarters of your corporation.') ;
+
+-- The Crimson Curse (game_id = 19) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(19, 'Vampire Hunter', 'Kill your first vampire.'),
+(19, 'Curse Breaker', 'Break the crimson curse.'),
+(19, 'Lord of the Night', 'Become a vampire lord.'),
+(19, 'Master of the Occult', 'Learn all the occult secrets.'),
+(19, 'Survivor', 'Survive the night.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(19, 'Silver Sword', 'A sword made of silver, effective against vampires.'),
+(19, 'Holy Water', 'Water that has been blessed, effective against vampires.'),
+(19, 'Wooden Stake', 'A wooden stake, effective against vampires.'),
+(19, 'Tome of Exorcism', 'A book that contains the rites of exorcism.'),
+(19, 'Garlic', 'A bulb of garlic, effective at repelling vampires.') ;
+
+-- Cyber Heist (game_id = 20) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(20, 'First Heist', 'Complete your first heist.'),
+(20, 'Ghost in the Machine', 'Complete a heist without being detected.'),
+(20, 'Master Hacker', 'Hack into the most secure system in the world.'),
+(20, 'Untraceable', 'Cover your tracks perfectly.'),
+(20, 'Legendary Thief', 'Become the most famous thief in the world.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(20, 'Icepick', 'A tool for breaking into computer systems.'),
+(20, 'Firewall Breaker', 'A program for breaking through firewalls.'),
+(20, 'Data Scrambler', 'A program for scrambling data.'),
+(20,
+'Cloaking Software',
+'A program that makes you invisible to security systems.'),
+(20, 'Botnet', 'A network of computers that can be used to launch attacks.') ;
+-- Achievements and Items for games 21-30
+
+-- Age of Sail: Empires (game_id = 21) - Fictional
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(21, 'First Command', 'Take command of your first ship.'),
+(21, 'Master and Commander', 'Win a battle against a superior enemy.'),
+(21, 'Trafalgar', 'Win a decisive naval battle.'),
+(21, 'Circumnavigation', 'Sail around the world.'),
+(21, 'Lord of the Seas', 'Control all major trade routes.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(21, 'Sloop', 'A small and fast sailing ship.'),
+(21, 'Frigate', 'A medium-sized warship.'),
+(21, 'Man-o''War', 'A large and powerful warship.'),
+(21,
+'Letter of Marque',
+'A government license authorizing a privateer to attack and capture enemy vessels.'),
+(21, 'Treasure Map', 'A map that leads to buried treasure.') ;
+
+-- The Last Stand: Aftermath (game_id = 22) - Real
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(22, 'The Beginning of The End', 'Complete the tutorial.'),
+(22, 'A Death in the Aftermath', 'Kill a Volunteer.'),
+(22, 'For Whom the Bell Tolls', 'Kill 10 Volunteers.'),
+(22, 'Genomic Anomaly', 'Acquire a mutation.'),
+(22, 'Tinkerer', 'Craft an item at a crafting station.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(22, 'Bandages', 'Used to stop bleeding and heal wounds.'),
+(22, 'Medkit', 'A medical kit for treating injuries.'),
+(22, 'Molotov Cocktail', 'A crude incendiary weapon.'),
+(22, 'Pipe Bomb', 'A homemade explosive device.'),
+(22, 'Baseball Bat', 'A blunt melee weapon.') ;
+
+-- Project Warlock 2 (game_id = 23) - Real
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(23, 'The woods are calling.', 'Travel through the ancient forest.'),
+(23, 'Fallen ruins.', 'Reach the ruin complex.'),
+(23, 'Necromancer''s playground.', 'Fight through the ruins.'),
+(23, 'The wolf''s den.', 'Defeat the Necromancer.'),
+(23, 'Headshot newbie', 'Kill 100 monsters with headshots.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(23, 'Revolver', 'A trusty sidearm.'),
+(23, 'Pump Action Shotgun', 'A powerful close-range weapon.'),
+(23, 'SMG', 'A fast-firing submachine gun.'),
+(23, 'Rifle', 'A long-range weapon.'),
+(23, 'Cannon', 'A heavy weapon that fires explosive projectiles.') ;
+
+-- The Wandering Village (game_id = 24) - Real
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(24, 'Petting Zoo', 'Pet Onbu.'),
+(24, 'Fore!', 'Feed Onbu with the Feeding Trebuchet.'),
+(24, 'Berry Good', 'Achieve 100% efficiency with a Berry Gatherer.'),
+(24, 'Doki Doki Waku Waku', 'Get Onbu''s heart rate to go above 6 bpm.'),
+(24, 'Full Body Shave', 'Cut down every tree on Onbu''s back.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(24, 'Berry', 'A type of food that can be gathered.'),
+(24, 'Mushroom', 'A type of food that can be grown.'),
+(24, 'Wood', 'A basic building material.'),
+(24, 'Stone', 'A basic building material.'),
+(24, 'Water', 'A vital resource for your villagers.') ;
+
+-- Gloomwood (game_id = 25) - Early Access
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(25, 'The Doctor is in', 'Meet the Doctor.'),
+(25, 'Out of the Fog', 'Escape the fog.'),
+(25, 'Amnesia', 'Forget who you are.'),
+(25, 'Master Thief', 'Steal everything.'),
+(25, 'The Gloom', 'Embrace the gloom.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(25, 'Cane Sword', 'A sword hidden in a cane.'),
+(25, 'Revolver', 'A firearm.'),
+(25, 'Shotgun', 'A powerful firearm.'),
+(25, 'Lantern', 'A source of light.'),
+(25, 'Lockpick', 'A tool for opening locks.') ;
+
+-- Tunic (game_id = 26) - Real
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(26, 'A Stick!', 'Found a stick.'),
+(26, 'A Sword!', 'Found a sword.'),
+(26, 'What just happened?', 'Was resurrected.'),
+(26, 'You hear a strange hum.', 'Engaged a strange device.'),
+(26, 'Your gift is accepted.', 'Made an offering.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(26, 'Stick', 'A simple melee weapon.'),
+(26, 'Sword', 'A powerful melee weapon.'),
+(26, 'Shield', 'Used for blocking attacks.'),
+(26, 'Lantern', 'Illuminates dark areas.'),
+(26, 'Magic Potion', 'Replenishes health.') ;
+
+-- Stray (game_id = 27) - Real
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(27, 'A Little Chatty', 'Meow 100 times.'),
+(27, 'Cat-a-Pult', 'Jump 500 times.'),
+(27, 'Productive Day', 'Sleep for more than one hour.'),
+(27, 'Boom Chat Kalaka', 'Dunk the basketball.'),
+(27, 'No More Lives', 'Die 9 times.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(27, 'B-12 Memory', 'A collectible that unlocks memories.'),
+(27, 'Badge', 'A collectible that appears on the cat''s backpack.'),
+(27, 'Sheet Music', 'A collectible that can be given to a musician.'),
+(27, 'Energy Drink', 'A collectible that can be traded.'),
+(27, 'Outsider Notebook', 'A crucial item for story progression.') ;
+
+-- V Rising (game_id = 28) - Real
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(28, 'A First Taste', 'Drink the blood of a living creature.'),
+(28, 'First of Many', 'Drink the blood of a V Blood carrier.'),
+(28,
+'Lord of the Land',
+'Place a Castle Heart and claim an unoccupied territory.'),
+(28, 'Larger Pockets!', 'Equip a bag.'),
+(28, 'Upon a Pale Horse', 'Ride a horse.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(28, 'Sword', 'A melee weapon.'),
+(28, 'Axe', 'A tool for chopping wood and a melee weapon.'),
+(28, 'Mace', 'A blunt melee weapon.'),
+(28, 'Spear', 'A polearm melee weapon.'),
+(28, 'Crossbow', 'A ranged weapon.') ;
+
+-- Warhammer 40,000: Boltgun (game_id = 29) - Real
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(29, 'Chapter I - Complete', 'Complete all Chapter I Missions.'),
+(29, 'Chapter II - Complete', 'Complete all Chapter II Missions.'),
+(29, 'Chapter III - Complete', 'Complete all Chapter III Missions.'),
+(29, 'Defeat a Lord of Change', 'Defeat a Lord of Change.'),
+(29, 'Defeat a Great Unclean One', 'Defeat a Great Unclean One.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(29, 'Chainsword', 'A melee weapon.'),
+(29, 'Boltgun', 'The iconic weapon of a Space Marine.'),
+(29, 'Shotgun', 'A close-range weapon.'),
+(29, 'Plasma Gun', 'An energy weapon.'),
+(29, 'Heavy Bolter', 'A heavy version of the Boltgun.') ;
+
+-- Dredge (game_id = 30) - Real
+INSERT INTO game_achievements (game_id, achievement_name, description) VALUES
+(30, 'Introductions', 'Complete the introduction quest.'),
+(30, 'The Key', 'Deliver the Key.'),
+(30, 'The Secret', 'Surrender the Music Box.'),
+(30, 'The Bond', 'Entrust the Ring.'),
+(30, 'The Chains', 'Relinquish the Necklace.') ;
+
+INSERT INTO items (game_id, item_name, description) VALUES
+(30, 'Old Iron Chain', 'A valuable trinket.'),
+(30, 'Broken Monocle', 'A valuable trinket.'),
+(30, 'Worn Gold Ring', 'A valuable trinket.'),
+(30, 'Doubloon', 'A valuable coin.'),
+(30, 'Engine', 'Improves the boat''s speed.') ;
