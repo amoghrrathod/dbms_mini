@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
-const GamePage: React.FC = () => {
+const GamePage: React.FC<{ user: any }> = ({ user }) => {
   const { id } = useParams<{ id: string }>();
   const [game, setGame] = React.useState<any>(null);
   const [reviews, setReviews] = React.useState<any[]>([]);
@@ -27,7 +27,8 @@ const GamePage: React.FC = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId: 1, gameId: id }), // Hardcoded userId
+      credentials: 'include',
+      body: JSON.stringify({ gameId: id }),
     })
       .then(res => {
         if (res.ok) {

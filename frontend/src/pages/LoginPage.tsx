@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 interface LoginPageProps {
-  onLogin: (username: string) => void;
+  onLogin: (user: any) => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
@@ -9,7 +9,31 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
   const handleLogin = () => {
     if (username.trim()) {
-      onLogin(username);
+      fetch("http://localhost:3001/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username }),
+        credentials: 'include',
+      })
+        .then((res) => {
+          console.log("Response:", res);
+          if (!res.ok) {
+            throw new Error("Login failed");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          console.log("Data:", data);
+          if (data.user) {
+            onLogin(data.user);
+          }
+        })
+        .catch((error) => {
+          console.error("Login error:", error);
+          alert("Login failed. Please check the username and try again.");
+        });
     }
   };
 

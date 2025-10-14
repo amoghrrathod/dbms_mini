@@ -2,13 +2,14 @@ import React from 'react';
 
 const Library: React.FC = () => {
   const [library, setLibrary] = React.useState<any[]>([]);
-  const userId = 1; // Hardcoded for now
 
   React.useEffect(() => {
-    fetch(`http://localhost:3001/api/users/${userId}/library`)
+    fetch(`http://localhost:3001/api/library`, {
+      credentials: 'include',
+    })
       .then(res => res.json())
       .then(data => setLibrary(data));
-  }, [userId]);
+  }, []);
 
   return (
     <div>

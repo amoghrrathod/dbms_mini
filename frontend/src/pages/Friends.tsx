@@ -2,13 +2,14 @@ import React from 'react';
 
 const Friends: React.FC = () => {
   const [friends, setFriends] = React.useState<any[]>([]);
-  const userId = 1; // Hardcoded for now
 
   React.useEffect(() => {
-    fetch(`http://localhost:3001/api/users/${userId}/friends`)
+    fetch(`http://localhost:3001/api/friends`, {
+      credentials: 'include',
+    })
       .then(res => res.json())
       .then(data => setFriends(data));
-  }, [userId]);
+  }, []);
 
   return (
     <div>

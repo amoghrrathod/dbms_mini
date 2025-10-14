@@ -15,8 +15,7 @@ import GamePage from "./pages/GamePage";
 function App() {
   const [games, setGames] = React.useState<any[]>([]);
   const [tags, setTags] = React.useState<any[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [username, setUsername] = React.useState("");
+  const [user, setUser] = React.useState<any>(null);
 
   const handleSearch = (query: string) => {
     fetch(`http://localhost:3001/api/search?q=${query}`)
@@ -28,8 +27,10 @@ function App() {
     if (tagName) {
       fetch(`http://localhost:3001/api/games/tag/${tagName}`)
         .then((res) => res.json())
-        .then((data) => setGames(data));
-    } else {
+        .then((data) => {
+          console.log('Filtered games:', data);
+          setGames(data);
+        });    } else {
       fetch("http://localhost:3001/api/games")
         .then((res) => res.json())
         .then((data) => setGames(data));
@@ -37,6 +38,16 @@ function App() {
   };
 
   React.useEffect(() => {
+    fetch("http://localhost:3001/api/check-session", {
+      credentials: "include",
+    }).then((res) => res.json())
+      .then((data) => {
+        if (data.user) {
+          setUser(data.user);
+        }
+      })
+      .catch(() => setUser(null));
+
     fetch("http://localhost:3001/api/games")
       .then((res) => res.json())
       .then((data) => setGames(data));
@@ -46,18 +57,17 @@ function App() {
       .then((data) => setTags(data));
   }, []);
 
-  const handleLogin = (username: string) => {
-    setIsLoggedIn(true);
-    setUsername(username);
+  const handleLogin = (user: any) => {
+    setUser(user);
   };
 
-  if (!isLoggedIn) {
+  if (!user) {
     return <LoginPage onLogin={handleLogin} />;
   }
 
   return (
     <Router>
-      <Navbar username={username} />
+      <Navbar username={user.user_name} />
       <div className="container mt-4">
         <Routes>
           <Route
@@ -90,7 +100,7 @@ function App() {
           />
           <Route path="/library" element={<Library />} />
           <Route path="/friends" element={<Friends />} />
-          <Route path="/games/:id" element={<GamePage />} />
+          <Route path="/games/:id" element={<GamePage user={user} />} />
           <Route path="/publishers/:id" element={<PublisherPage />} />
           <Route path="/developers/:id" element={<DeveloperPage />} />
         </Routes>
@@ -100,4 +110,3 @@ function App() {
 }
 
 export default App;
-
