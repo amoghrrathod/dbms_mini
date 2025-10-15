@@ -98,8 +98,8 @@ function App() {
               </>
             }
           />
-          <Route path="/library" element={<Library />} />
-          <Route path="/friends" element={<Friends />} />
+          <Route path="/library" element={<Library user={user} />} />
+          <Route path="/friends" element={<Friends user={user} />} />
           <Route path="/games/:id" element={<GamePage user={user} />} />
           <Route path="/publishers/:id" element={<PublisherPage />} />
           <Route path="/developers/:id" element={<DeveloperPage />} />

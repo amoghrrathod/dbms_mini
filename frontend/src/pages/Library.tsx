@@ -1,15 +1,17 @@
 import React from 'react';
 
-const Library: React.FC = () => {
+const Library: React.FC<{ user: any }> = ({ user }) => {
   const [library, setLibrary] = React.useState<any[]>([]);
 
   React.useEffect(() => {
-    fetch(`http://localhost:3001/api/library`, {
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then(data => setLibrary(data));
-  }, []);
+    if (user) {
+      fetch(`http://localhost:3001/api/users/${user.user_id}/library`, {
+        credentials: 'include',
+      })
+        .then(res => res.json())
+        .then(data => setLibrary(data));
+    }
+  }, [user]);
 
   return (
     <div>

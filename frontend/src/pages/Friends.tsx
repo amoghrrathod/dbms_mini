@@ -1,15 +1,17 @@
 import React from 'react';
 
-const Friends: React.FC = () => {
+const Friends: React.FC<{ user: any }> = ({ user }) => {
   const [friends, setFriends] = React.useState<any[]>([]);
 
   React.useEffect(() => {
-    fetch(`http://localhost:3001/api/friends`, {
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then(data => setFriends(data));
-  }, []);
+    if (user) {
+      fetch(`http://localhost:3001/api/users/${user.user_id}/friends`, {
+        credentials: 'include',
+      })
+        .then(res => res.json())
+        .then(data => setFriends(data));
+    }
+  }, [user]);
 
   return (
     <div>

@@ -5,16 +5,17 @@ interface LoginPageProps {
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
-  const [username, setUsername] = useState('');
+  const [user_name, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    if (username.trim()) {
+    if (user_name.trim() && password.trim()) {
       fetch("http://localhost:3001/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ user_name, password }),
         credentials: 'include',
       })
         .then((res) => {
@@ -32,7 +33,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         })
         .catch((error) => {
           console.error("Login error:", error);
-          alert("Login failed. Please check the username and try again.");
+          alert("Login failed. Please check the username and password and try again.");
         });
     }
   };
@@ -43,8 +44,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       <input
         type="text"
         placeholder="Enter your username"
-        value={username}
+        value={user_name}
         onChange={(e) => setUsername(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Enter your password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
       />
       <button onClick={handleLogin}>Login</button>
     </div>
