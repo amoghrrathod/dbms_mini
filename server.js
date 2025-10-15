@@ -95,10 +95,28 @@ app.get("/api/games/:id/items", (req, res) => {
   );
 });
 
+app.get("/api/games/:gameId/achievements/user/:userId", (req, res) => {
+  const { gameId, userId } = req.params;
+  const query = `
+    SELECT ga.achievement_id, ga.achievement_name, ga.description, ua.unlocked_achievement_id IS NOT NULL AS unlocked
+    FROM game_achievements ga
+    LEFT JOIN unlocked_achievements ua ON ga.achievement_id = ua.achievement_id AND ua.user_id = ?
+    WHERE ga.game_id = ?;
+  `;
+  db.query(query, [userId, gameId], (err, results) => {
+    if (err) {
+      console.error("Error fetching achievements with user status:", err);
+      res.status(500).send("Error fetching achievements");
+      return;
+    }
+    res.json(results);
+  });
+});
+
 app.get("/api/games/:id/reviews", (req, res) => {
   const gameId = req.params.id;
   db.query(
-    "SELECT * FROM reviews WHERE game_id = ?",
+    "SELECT r.*, u.user_name FROM reviews r JOIN users u ON r.user_id = u.user_id WHERE game_id = ?",
     [gameId],
     (err, results) => {
       if (err) {
@@ -106,6 +124,28 @@ app.get("/api/games/:id/reviews", (req, res) => {
         return;
       }
       res.json(results);
+    },
+  );
+});
+
+app.post("/api/games/:id/reviews", requireAuth, (req, res) => {
+  const gameId = req.params.id;
+  const userId = req.session.user.user_id;
+  const { rating, review_text } = req.body;
+
+  db.query(
+    "INSERT INTO reviews (user_id, game_id, rating, review_text) VALUES (?, ?, ?, ?)",
+    [userId, gameId, rating, review_text],
+    (err, results) => {
+      if (err) {
+        console.error("Error inserting review:", err);
+        if (err.code === 'ER_DUP_ENTRY') {
+          return res.status(409).send('You have already reviewed this game.');
+        }
+        res.status(500).send("Error inserting review");
+        return;
+      }
+      res.status(201).send("Review added successfully");
     },
   );
 });
@@ -153,6 +193,25 @@ app.get("/api/users/:id/library", requireAuth, (req, res) => {
     (err, results) => {
       if (err) {
         res.status(500).send("Error fetching user library");
+        return;
+      }
+      res.json(results);
+    },
+  );
+});
+
+app.get("/api/users/:id/achievements", requireAuth, (req, res) => {
+  const userId = req.params.id;
+  db.query(
+    `SELECT ga.*, g.game_name
+    FROM game_achievements ga
+    JOIN unlocked_achievements ua ON ga.achievement_id = ua.achievement_id
+    JOIN games g ON ga.game_id = g.game_id
+    WHERE ua.user_id = ?`,
+    [userId],
+    (err, results) => {
+      if (err) {
+        res.status(500).send("Error fetching user achievements");
         return;
       }
       res.json(results);

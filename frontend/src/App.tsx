@@ -11,6 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import DeveloperPage from "./pages/DeveloperPage";
 import PublisherPage from "./pages/PublisherPage";
 import GamePage from "./pages/GamePage";
+import AchievementsPage from "./pages/AchievementsPage";
 
 function App() {
   const [games, setGames] = React.useState<any[]>([]);
@@ -100,6 +101,7 @@ function App() {
           />
           <Route path="/library" element={<Library user={user} />} />
           <Route path="/friends" element={<Friends user={user} />} />
+          <Route path="/achievements" element={<AchievementsPage user={user} />} />
           <Route path="/games/:id" element={<GamePage user={user} />} />
           <Route path="/publishers/:id" element={<PublisherPage />} />
           <Route path="/developers/:id" element={<DeveloperPage />} />

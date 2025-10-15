@@ -19,6 +19,7 @@ const Navbar: React.FC<NavbarProps> = ({ username }) => {
               <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                 <li><Link className="dropdown-item" to="/library">Library</Link></li>
                 <li><Link className="dropdown-item" to="/friends">Friends</Link></li>
+                <li><Link className="dropdown-item" to="/achievements">Achievements</Link></li>
               </ul>
             </li>
           </ul>

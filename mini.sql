@@ -113,6 +113,7 @@ ON DELETE SET NULL,
 FOREIGN KEY (game_id)
 REFERENCES games (game_id)
 ON DELETE CASCADE,
+UNIQUE (user_id, game_id),
 CHECK (rating >= 1 AND rating <= 5)
 ) ;
 
