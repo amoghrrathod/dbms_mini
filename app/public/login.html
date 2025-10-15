@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Login - GameStore</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+  <div class="form-container">
+    <form id="login-form">
+      <h2>Login</h2>
+      <div class="message" id="login-message"></div>
+      <input type="email" id="login-email" placeholder="Email" required>
+      <input type="password" id="login-password" placeholder="Password" required>
+      <button type="submit">Login</button>
+      <p>Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+    </form>
+
+    <form id="signup-form" class="hidden">
+      <h2>Sign Up</h2>
+      <input type="text" id="signup-username" placeholder="Username" required>
+      <input type="email" id="signup-email" placeholder="Email" required>
+      <input type="password" id="signup-password" placeholder="Password" required>
+      <button type="submit">Create Account</button>
+      <p>Already have an account? <a href="#" id="show-login">Log in</a></p>
+    </form>
+  </div>
+  <script src="login.js"></script>
+</body>
+
+</html>
