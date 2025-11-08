@@ -17,8 +17,8 @@ app.use(
 );
 const db = mysql.createConnection({
   host: "localhost",
-  user: "user1",
-  password: "",
+  user: "gamestore_app",
+  password: "backend123",
   database: "gamestoredb",
 });
 
@@ -328,4 +328,4 @@ app.get("/", (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
-});
+})

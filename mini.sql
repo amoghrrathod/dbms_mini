@@ -1,3 +1,33 @@
+-- -----------------------------------------------------
+-- User Creation and Privilege Management (Safe Version)
+-- -----------------------------------------------------
+
+-- Flush privileges to ensure we are starting fresh
+FLUSH PRIVILEGES;
+
+-- Drop users if they already exist to prevent errors
+DROP USER IF EXISTS 'gamestore_admin'@'localhost';
+DROP USER IF EXISTS 'gamestore_app'@'localhost';
+DROP USER IF EXISTS 'readonly_user'@'localhost';
+
+-- 1. Administrator (Full Access)
+CREATE USER 'gamestore_admin'@'localhost' IDENTIFIED BY 'admin123';
+GRANT ALL PRIVILEGES ON gamestoredb.* TO 'gamestore_admin'@'localhost';
+
+-- 2. Application User (Limited Access)
+CREATE USER 'gamestore_app'@'localhost' IDENTIFIED BY 'backend123';
+GRANT SELECT, INSERT, UPDATE, DELETE ON gamestoredb.* TO 'gamestore_app'@'localhost';
+GRANT EXECUTE ON PROCEDURE gamestoredb.get_games_by_tag TO 'gamestore_app'@'localhost';
+GRANT EXECUTE ON FUNCTION gamestoredb.get_average_game_rating TO 'gamestore_app'@'localhost';
+
+-- 3. Read-Only User (Reporting/Analytics)
+CREATE USER 'readonly_user'@'localhost' IDENTIFIED BY 'readonly';
+GRANT SELECT ON gamestoredb.* TO 'readonly_user'@'localhost';
+
+-- Apply all the new privilege grants
+FLUSH PRIVILEGES;
+
+
 DROP DATABASE IF EXISTS gamestoredb;
 CREATE DATABASE gamestoredb;
 USE gamestoredb;
