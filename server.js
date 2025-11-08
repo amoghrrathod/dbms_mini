@@ -17,8 +17,8 @@ app.use(
 );
 const db = mysql.createConnection({
   host: "localhost",
-  user: "root",
-  password: "password",
+  user: "user1",
+  password: "",
   database: "gamestoredb",
 });
 
@@ -242,17 +242,31 @@ app.get("/api/tags", (req, res) => {
 
 app.get("/api/search", (req, res) => {
   const query = req.query.q;
-  db.query(
-    `SELECT g.*, GROUP_CONCAT(t.tag_name) AS tags
+  
+  const searchQuery = `
+    SELECT
+      g.*,
+      (SELECT GROUP_CONCAT(t.tag_name)
+       FROM has_tags ht
+       JOIN tags t ON ht.tag_id = t.tag_id
+       WHERE ht.game_id = g.game_id) AS tags
     FROM games g
-    LEFT JOIN has_tags ht ON g.game_id = ht.game_id
-    LEFT JOIN tags t ON ht.tag_id = t.tag_id
-    WHERE g.game_name LIKE ? OR t.tag_name LIKE ?
-    GROUP BY g.game_id`,
-    [`%${query}%`, `%${query}%`],
+    WHERE g.game_name LIKE ?
+    OR g.game_id IN (
+        SELECT ht.game_id
+        FROM has_tags ht
+        JOIN tags t ON ht.tag_id = t.tag_id
+        WHERE t.tag_name LIKE ?
+    )
+  `;
+
+  db.query(
+    searchQuery,
+    [`%${query}%`, `%${query}%`], // Pass the query parameter twice
     (err, results) => {
       if (err) {
-        res.status(500).send("Error searching games");
+        console.error("Error executing nested search query:", err);
+        res.status(5.00).send("Error searching games");
         return;
       }
       res.json(results);
