@@ -1,6 +1,4 @@
--- -----------------------------------------------------
--- User Creation and Privilege Management (Safe Version)
--- -----------------------------------------------------
+-- User Creation and Privilege Management
 
 -- Flush privileges to ensure we are starting fresh
 FLUSH PRIVILEGES;
