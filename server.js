@@ -17,8 +17,8 @@ app.use(
 );
 const db = mysql.createConnection({
   host: "localhost",
-  user: "gamestore_app",
-  password: "backend123",
+  user: "root",
+  password: "password",
   database: "gamestoredb",
 });
 
@@ -128,6 +128,21 @@ app.get("/api/games/:id/reviews", (req, res) => {
   );
 });
 
+app.get("/api/games/:id/avg-rating", (req, res) => {
+  const gameId = req.params.id;
+  db.query(
+    "SELECT get_average_game_rating(?) AS avg_rating",
+    [gameId],
+    (err, results) => {
+      if (err) {
+        res.status(500).send("Error fetching average rating");
+        return;
+      }
+      res.json(results[0]);
+    },
+  );
+});
+
 app.post("/api/games/:id/reviews", requireAuth, (req, res) => {
   const gameId = req.params.id;
   const userId = req.session.user.user_id;
@@ -139,13 +154,100 @@ app.post("/api/games/:id/reviews", requireAuth, (req, res) => {
     (err, results) => {
       if (err) {
         console.error("Error inserting review:", err);
-        if (err.code === 'ER_DUP_ENTRY') {
-          return res.status(409).send('You have already reviewed this game.');
+        if (err.code === "ER_DUP_ENTRY") {
+          return res.status(409).send("You have already reviewed this game.");
         }
         res.status(500).send("Error inserting review");
         return;
       }
       res.status(201).send("Review added successfully");
+    },
+  );
+});
+
+app.put("/api/reviews/:reviewId", requireAuth, (req, res) => {
+  const reviewId = req.params.reviewId;
+  const userId = req.session.user.user_id;
+  const { rating, review_text } = req.body;
+
+  // First, check if the review belongs to the user
+  db.query(
+    "SELECT user_id FROM reviews WHERE review_id = ?",
+    [reviewId],
+    (err, results) => {
+      if (err) {
+        console.error("Error fetching review:", err);
+        return res.status(500).send("Error fetching review for update");
+      }
+
+      if (results.length === 0) {
+        return res.status(404).send("Review not found");
+      }
+
+      if (results[0].user_id !== userId) {
+        return res
+          .status(403)
+          .send("Forbidden: You can only edit your own reviews");
+      }
+
+      // If the user is the owner, proceed with the update
+      db.query(
+        "UPDATE reviews SET rating = ?, review_text = ? WHERE review_id = ?",
+        [rating, review_text, reviewId],
+        (err, updateResult) => {
+          if (err) {
+            console.error("Error updating review:", err);
+            return res.status(500).send("Error updating review");
+          }
+          if (updateResult.affectedRows === 0) {
+            return res.status(404).send("Review not found");
+          }
+          res.status(200).send("Review updated successfully");
+        },
+      );
+    },
+  );
+});
+
+app.delete("/api/reviews/:reviewId", requireAuth, (req, res) => {
+  const reviewId = req.params.reviewId;
+  const userId = req.session.user.user_id;
+
+  // First, check if the review belongs to the user
+  db.query(
+    "SELECT user_id FROM reviews WHERE review_id = ?",
+    [reviewId],
+    (err, results) => {
+      if (err) {
+        console.error("Error fetching review:", err);
+        return res.status(500).send("Error fetching review for deletion");
+      }
+
+      if (results.length === 0) {
+        return res.status(404).send("Review not found");
+      }
+
+      if (results[0].user_id !== userId) {
+        return res
+          .status(403)
+          .send("Forbidden: You can only delete your own reviews");
+      }
+
+      // If the user is the owner, proceed with deletion
+      db.query(
+        "DELETE FROM reviews WHERE review_id = ?",
+        [reviewId],
+        (err, deleteResult) => {
+          if (err) {
+            console.error("Error deleting review:", err);
+            return res.status(500).send("Error deleting review");
+          }
+          if (deleteResult.affectedRows === 0) {
+            return res.status(404).send("Review not found");
+          }
+          res.status(200).send("Review deleted successfully");
+        },
+      );
     },
   );
 });
@@ -242,7 +344,7 @@ app.get("/api/tags", (req, res) => {
 
 app.get("/api/search", (req, res) => {
   const query = req.query.q;
-  
+
   const searchQuery = `
     SELECT
       g.*,
@@ -266,7 +368,7 @@ app.get("/api/search", (req, res) => {
     (err, results) => {
       if (err) {
         console.error("Error executing nested search query:", err);
-        res.status(5.00).send("Error searching games");
+        res.status(5.0).send("Error searching games");
         return;
       }
       res.json(results);
@@ -328,4 +430,4 @@ app.get("/", (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
-})
+});

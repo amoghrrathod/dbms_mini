@@ -6,6 +6,7 @@ const GamePage: React.FC<{ user: any }> = ({ user }) => {
   const [game, setGame] = React.useState<any>(null);
   const [reviews, setReviews] = React.useState<any[]>([]);
   const [items, setItems] = React.useState<any[]>([]);
+  const [avgRating, setAvgRating] = React.useState<number | null>(null);
   const [userOwnsGame, setUserOwnsGame] = React.useState(false);
   const [rating, setRating] = React.useState(5);
   const [reviewText, setReviewText] = React.useState('');
@@ -22,6 +23,10 @@ const GamePage: React.FC<{ user: any }> = ({ user }) => {
     fetch(`http://localhost:3001/api/games/${id}/items`)
       .then(res => res.json())
       .then(data => setItems(data));
+
+    fetch(`http://localhost:3001/api/games/${id}/avg-rating`)
+      .then(res => res.json())
+      .then(data => setAvgRating(data.avg_rating));
 
     if (user) {
       fetch(`http://localhost:3001/api/users/${user.user_id}/library`, {
@@ -78,6 +83,49 @@ const GamePage: React.FC<{ user: any }> = ({ user }) => {
       });
   };
 
+  const handleEdit = (review: any) => {
+    const newRating = prompt("Enter new rating (1-5):", review.rating);
+    const newReviewText = prompt("Enter new review text:", review.review_text);
+
+    if (newRating && newReviewText) {
+      fetch(`http://localhost:3001/api/reviews/${review.review_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ rating: parseInt(newRating, 10), review_text: newReviewText }),
+      })
+        .then(res => {
+          if (res.ok) {
+            alert('Review updated successfully!');
+            fetch(`http://localhost:3001/api/games/${id}/reviews`)
+              .then(res => res.json())
+              .then(data => setReviews(data));
+          } else {
+            res.text().then(text => alert(`Failed to update review: ${text}`));
+          }
+        });
+    }
+  };
+
+  const handleDelete = (reviewId: number) => {
+    if (window.confirm("Are you sure you want to delete this review?")) {
+      fetch(`http://localhost:3001/api/reviews/${reviewId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+        .then(res => {
+          if (res.ok) {
+            alert('Review deleted successfully!');
+            setReviews(reviews.filter(review => review.review_id !== reviewId));
+          } else {
+            res.text().then(text => alert(`Failed to delete review: ${text}`));
+          }
+        });
+    }
+  };
+
   if (!game) {
     return <div>Loading...</div>;
   }
@@ -85,6 +133,11 @@ const GamePage: React.FC<{ user: any }> = ({ user }) => {
   return (
     <div>
       <h1>{game.game_name}</h1>
+      {avgRating !== null ? (
+        <p>Average Rating: {Number(avgRating).toFixed(2)}</p>
+      ) : (
+        <p>No ratings yet</p>
+      )}
       <p>{game.description}</p>
       <p><a href={`/publishers/${game.publisher_id}`}>Publisher</a></p>
       <p><a href={`/developers/${game.dev_id}`}>Developer</a></p>
@@ -127,6 +180,12 @@ const GamePage: React.FC<{ user: any }> = ({ user }) => {
             <h5>{review.user_name}</h5>
             <p>Rating: {review.rating}</p>
             <p>{review.review_text}</p>
+            {user && user.user_id === review.user_id && (
+              <div>
+                <button className="btn btn-warning me-2" onClick={() => handleEdit(review)}>Edit</button>
+                <button className="btn btn-danger" onClick={() => handleDelete(review.review_id)}>Delete</button>
+              </div>
+            )}
           </li>
         ))}
       </ul>
